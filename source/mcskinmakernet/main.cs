@@ -34,17 +34,21 @@ namespace McSkinMaker
 
         //Main function
 
-        private void startCreation()
+        private void StartCreation()
         {
+            Log("Starting creation of pack");
             //Check for errors
             if (Globals.pathToImage == null)
             {
                 MessageBox.Show("You need to select at least one image to make a texture pack.", "Undefined variable!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Log("Exited due to no pack image selected");
                 return;
             }
             if (skinpackname.Text.Contains("?"))
             {
                 MessageBox.Show("Folder paths cannot contain a \"?\"", "Invalid string!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Log("Excited due to skin pack name containing banned characters");
+                Log($"Folder pack name - {skinpackname.Text}");
                 return;
             }
 
@@ -55,11 +59,15 @@ namespace McSkinMaker
             Globals.zipsPath = Globals.tempPath + @"zips\";
 
             //Set up folders to store temp data if they do not exist already
-            if (!(Directory.Exists(Globals.folderPath) & Directory.Exists(Globals.zipsPath) & Directory.Exists(Globals.packsPath)))
+            if (!Directory.Exists(Globals.folderPath))
             {
                 System.IO.Directory.CreateDirectory(Globals.folderPath);
+            }
+            if (!Directory.Exists(Globals.zipsPath))
+            {
                 System.IO.Directory.CreateDirectory(Globals.zipsPath);
             }
+            //Logs path does not need to be made as it is automatically made when it logs something there
             if (!Directory.Exists(Globals.packsPath) & Globals.packsPath == Globals.tempPath + @"packs\")
             {
                 System.IO.Directory.CreateDirectory(Globals.packsPath);
@@ -74,11 +82,11 @@ namespace McSkinMaker
 
             foreach (string i in fileName)
             {
-                DumpIntoFile(GetFiles(Globals.skinpackname, Globals.skinpackdescription, Globals.skinName, i), Globals.skinpackname, i); //Calls dumpinto file with the file pulled from getFiles
+                DumpIntoFile(GetFiles(Globals.skinpackname, Globals.skinpackdescription, Globals.skinName, i), i); //Calls dumpinto file with the file pulled from getFiles
             }
             DumpImages();
 
-            zipFile(Globals.folderPath);
+            ZipToFile(Globals.folderPath);
 
             //Finished program here
 
@@ -96,7 +104,7 @@ namespace McSkinMaker
 
 
         //Folder zipper/mcpack creator
-        public static void zipFile(string startPath)
+        public static void ZipToFile(string startPath)
         {
 
             ZipFile.CreateFromDirectory(startPath, Globals.zipsPath);
@@ -208,12 +216,14 @@ namespace McSkinMaker
         }
 
         //Selects an image for pack
-        public void imageSelection()
+        public void ImageSelection()
         {
 
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.InitialDirectory = "";
-            dialog.Filter = "Images (*.png; *jpg; *.jpeg)|*.png; *.jpg;*.jpeg|All files (*.*)|*.*";
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                InitialDirectory = "",
+                Filter = "Images (*.png; *jpg; *.jpeg)|*.png; *.jpg;*.jpeg|All files (*.*)|*.*"
+            };
             if (DialogResult.OK == dialog.ShowDialog())
             {
                 string pathtoPNG = dialog.FileName;
@@ -241,7 +251,7 @@ namespace McSkinMaker
             return;
         }
 
-        public static void DumpIntoFile(string fileText, string skinpackName, string fileName)
+        public static void DumpIntoFile(string fileText, string fileName)
         {
 
 
@@ -383,7 +393,7 @@ skinpack.{packName}={packName}";
             Globals.logName = Globals.logName + "log" + RandomString(5) + ".log";
             toolTip1.SetToolTip(startbutton, "Start creation of the skin pack");
             toolTip1.SetToolTip(ImageSelectButton, "Select texture pack skin image");
-            toolTip1.SetToolTip(pictureBox3, "Github page");
+            toolTip1.SetToolTip(button1, "Github page");
             toolTip1.SetToolTip(moreOptions, "More options for creation of pack");
 
             Log("Log Entry : ");
@@ -397,31 +407,6 @@ skinpack.{packName}={packName}";
         {
 
         }
-
-
-
-        //Buttoms
-
-        private void startbutton_Click(object sender, EventArgs e)
-        {
-            startCreation();
-        }
-
-        private void ImageSelectButton_Click(object sender, EventArgs e)
-        {
-            imageSelection();
-        }
-        private void moreOptions_Click(object sender, EventArgs e)
-        {
-            advancedSettings settings = new advancedSettings();
-            settings.ShowDialog();
-
-        }
-        private void pictureBox3_Click(object sender, EventArgs e)
-        {
-            OpenUrl("https://github.com/ssparkee/mcskinmaker");
-        }
-
 
 
         //Text boxes
@@ -438,5 +423,40 @@ skinpack.{packName}={packName}";
         }
 
 
+
+
+        //Buttoms
+
+        private void startbutton_Click(object sender, EventArgs e)
+        {
+            StartCreation();
+        }
+
+        private void ImageSelectButton_Click(object sender, EventArgs e)
+        {
+            ImageSelection();
+        }
+        private void moreOptions_Click(object sender, EventArgs e)
+        {
+            advancedSettings settings = new advancedSettings();
+            settings.ShowDialog();
+
+        }
+        
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OpenUrl("https://github.com/ssparkee/mcskinmaker");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            new Process
+            {
+                StartInfo = new ProcessStartInfo(Globals.logName)
+                {
+                    UseShellExecute = true
+                }
+            }.Start();
+        }
     }
 }
